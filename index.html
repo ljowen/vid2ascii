@@ -1,0 +1,79 @@
+<html>
+<h1> hello world </h1>
+<video style="height: 200px; width: 200px" autoplay></video>
+<canvas  style="height: 200px; width: 200px; display: none;" id="c1" style="float: right"></canvas>
+<canvas  style="height: 200px; width: 200px" id="c2" style="float: right">
+</canvas>
+<input value=100 type="number" id="threshold" >
+
+<pre style="font-size: 7px;" id="string"></pre>
+<script type="text/javascript">
+const constraints = {
+  video: true
+};
+
+    
+    let c1 = document.getElementById('c1');
+    let ctx1 = this.c1.getContext('2d');
+    let c2 = document.getElementById('c2');
+    let ctx2 = this.c2.getContext('2d');
+
+const video = document.querySelector('video');
+
+function handleSuccess(stream) {
+  video.srcObject = stream;
+}
+
+function asString() {
+
+}
+
+// video.addEventListener("timeupdate", (e) => {
+setInterval(() => {
+  console.log(video);
+  ctx1.drawImage(video, 0, 0, 200,200);
+    let frame = ctx1.getImageData(0, 0, 200, 200);
+    console.log(frame);
+    let l = frame.data.length / 4;
+    let s = "";
+
+    for (let i = 0; i < l; i++) {
+      const R = i * 4 + 0;
+      const G = i * 4 + 1;
+      const B = i * 4 + 2;
+      const A = i * 4 + 3;
+
+      let r = frame.data[i * 4 + 0];
+      let g = frame.data[i * 4 + 1];
+      let b = frame.data[i * 4 + 2];
+      let a = frame.data[i * 4 + 3];
+
+      if((r + g + b)/3 > document.getElementById("threshold").value ) {
+        r = 255;
+        g = 255;
+        b = 255;
+        s = s.concat('#' + (i%200==0 ? '\n' : ''));
+      } else {
+        r = 0;
+        g = 0;
+        b = 0;
+        s = s.concat(' ' + (i%200==0 ? '\n' : ''));
+      }
+      frame.data[R] = r;
+      frame.data[G] = g;
+      frame.data[B] = b;
+    }     
+    // ctx2.putImageData(frame, 0, 0);
+    console.log(s);
+    document.getElementById("string").textContent  = s;
+    return;
+}, 60)
+
+function handleError(error) {
+  console.error('Reeeejected!', error);
+}
+
+navigator.mediaDevices.getUserMedia(constraints).
+  then(handleSuccess).catch(handleError);
+</script>
+</html>
